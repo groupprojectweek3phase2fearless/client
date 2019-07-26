@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import axios from 'axios'
 import db from './firebase/config'
 import router from './router'
 
@@ -7,12 +8,16 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    arrayQuestion: [],
     rooms: [],
     currentRoomId: '',
     currentPlayer: '',
     myRoom: {}
   },
   mutations: {
+    getQuestion (state, payload) {
+      state.arrayQuestion = payload
+    },
     register (state, playerName) {
       console.log('register kepanggil')
       console.log(playerName)
@@ -30,7 +35,30 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    createRoom ({ commit, state, dispatch }, roomName) {
+    getQuestion ({ commit }) {
+      return new Promise((resolve, reject) => {
+        axios({
+          method: 'GET',
+          url: `https://opentdb.com/api.php?amount=23&category=9&difficulty=easy&type=boolean&encode=url3986`,
+          responseType: 'json'
+        })
+          .then(({ data }) => {
+            let datas = data.results
+            let arrayQuestion = []
+            for (let i = 0; i < datas.length; i++) {
+              let obj = { question: datas[i].question, answer: datas[i].correct_answer }
+              arrayQuestion.push(obj)
+            }
+            commit('getQuestion', arrayQuestion)
+            resolve(true)
+          })
+          .catch(err => {
+            console.log(err)
+            reject(err)
+          })
+      })
+  },
+  createRoom ({ commit, state, dispatch }, roomName) {
       db.collection('rooms').add({
         roomName,
         players: [localStorage.getItem('username')],

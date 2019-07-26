@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import Game from './views/game.vue'
 import Home from './views/Home.vue'
 import Lobby from './views/Lobby.vue'
 import Room from './views/Room.vue'
